@@ -1,16 +1,88 @@
-﻿using System.Windows.Input;
+﻿using System.Collections.Generic;
+using System.Windows.Input;
 using BongoCat.DJMAX.Common;
+using BongoCat.DJMAX.Setting.Data;
 
 namespace BongoCat.DJMAX.Setting.Models
 {
     internal class SettingWindowModel : NotifyModel
     {
-        public Buttons SelectedButtons
+        public PropertyTransaction<Buttons> Buttons
         {
-            get => _selectedButtons;
+            get => _buttons;
             set
             {
-                _selectedButtons = value;
+                _buttons = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PropertyTransaction<Color?> Background
+        {
+            get => _background;
+            set
+            {
+                _background = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PropertyTransaction<string> Skin
+        {
+            get => _skin;
+            set
+            {
+                _skin = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public PropertyTransaction<int?> RefreshRate
+        {
+            get => _refreshRate;
+            set
+            {
+                _refreshRate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IList<Buttons> ButtonItems
+        {
+            get => _buttonItems;
+            set
+            {
+                _buttonItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IList<Color> BackgroundItems
+        {
+            get => _backgroundItems;
+            set
+            {
+                _backgroundItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IList<string> SkinItems
+        {
+            get => _skinItems;
+            set
+            {
+                _skinItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IList<int> RefreshRateItems
+        {
+            get => _refreshRateItems;
+            set
+            {
+                _refreshRateItems = value;
                 OnPropertyChanged();
             }
         }
@@ -54,8 +126,17 @@ namespace BongoCat.DJMAX.Setting.Models
                 OnPropertyChanged();
             }
         }
-        
-        private Buttons _selectedButtons;
+
+        private IList<Buttons> _buttonItems;
+        private IList<Color> _backgroundItems;
+        private IList<string> _skinItems;
+        private IList<int> _refreshRateItems;
+
+        private PropertyTransaction<Buttons> _buttons;
+        private PropertyTransaction<Color?> _background;
+        private PropertyTransaction<string> _skin;
+        private PropertyTransaction<int?> _refreshRate;
+
         private InputKeysModel[] _keys;
         private object _overlay;
         private ICommand _cancelCommand;

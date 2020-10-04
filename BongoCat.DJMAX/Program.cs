@@ -10,10 +10,6 @@ namespace BongoCat.DJMAX
 {
     internal static class Program
     {
-        private const string ConfigFile = "config.json";
-
-        private static readonly string _skinDirectory = Path.Combine(Environment.CurrentDirectory, "skins");
-
         [STAThread]
         private static void Main()
         {
@@ -24,7 +20,7 @@ namespace BongoCat.DJMAX
 
             try
             {
-                configuration = ConfigurationInternal.FromFile(ConfigFile);
+                configuration = ConfigurationInternal.FromFile(BCEnvironment.ConfigFile);
 
                 if (string.IsNullOrEmpty(configuration.Skin) || "default".Equals(configuration.Skin, StringComparison.OrdinalIgnoreCase))
                 {
@@ -53,18 +49,7 @@ namespace BongoCat.DJMAX
             }
 
             configuration ??= defaultConfiguration;
-            configuration.Save(ConfigFile);
-
-            try
-            {
-                var skinDir = Path.Combine(_skinDirectory, configuration.Skin);
-                configuration.SkinInternal = Skin.FromDirectory(configuration.Buttons, skinDir);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message, "BongoCat DJMAX", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
+            configuration.Save(BCEnvironment.ConfigFile);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
@@ -73,7 +58,7 @@ namespace BongoCat.DJMAX
 
         private static void WriteDefaultSkins()
         {
-            var dir = Path.Combine(_skinDirectory, "Lisrim");
+            var dir = Path.Combine(BCEnvironment.SkinDirectory, "Lisrim");
 
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);

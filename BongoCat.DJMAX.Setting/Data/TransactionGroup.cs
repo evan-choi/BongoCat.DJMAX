@@ -9,9 +9,13 @@ namespace BongoCat.DJMAX.Setting.Data
 
         private readonly ITransaction[] _transactions;
 
-        public TransactionGroup(IEnumerable<ITransaction> transactions)
+        public TransactionGroup(IEnumerable<ITransaction> transactions) : this(transactions.ToArray())
         {
-            _transactions = transactions.ToArray();
+        }
+
+        public TransactionGroup(params ITransaction[] transactions)
+        {
+            _transactions = transactions;
         }
 
         public void Rollback()

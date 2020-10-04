@@ -39,6 +39,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BCEnvironment.cs" />
     <Compile Include="Buttons.cs" />
     <Compile Include="Color.cs" />
     <Compile Include="Configuration.cs" />

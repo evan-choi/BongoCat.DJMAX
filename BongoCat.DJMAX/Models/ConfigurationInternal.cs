@@ -8,8 +8,18 @@ namespace BongoCat.DJMAX.Models
     // TOOD: refactoring
     internal sealed class ConfigurationInternal : Configuration
     {
-        [JsonIgnore]
-        public Skin SkinInternal { get; set; }
+        private string _path;
+
+        public new void Save(string path)
+        {
+            _path = path;
+            base.Save(path);
+        }
+
+        public void Save()
+        {
+            Save(_path);
+        }
 
         public new static ConfigurationInternal FromFile(string path)
         {
@@ -17,7 +27,10 @@ namespace BongoCat.DJMAX.Models
                 throw new FileNotFoundException();
 
             var json = File.ReadAllText(path, Encoding.UTF8);
-            return JsonConvert.DeserializeObject<ConfigurationInternal>(json);
+            var config = JsonConvert.DeserializeObject<ConfigurationInternal>(json);
+            config._path = path;
+
+            return config;
         }
     }
 }

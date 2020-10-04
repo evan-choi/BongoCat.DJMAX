@@ -4,17 +4,32 @@ namespace BongoCat.DJMAX.Common
 {
     public readonly struct Color
     {
-        public byte Red => (byte)((ulong)(value >> 16) & byte.MaxValue);
+        public byte Red => (byte)((ulong)(_value >> 16) & byte.MaxValue);
 
-        public byte Green => (byte)((ulong)(value >> 8) & byte.MaxValue);
+        public byte Green => (byte)((ulong)(_value >> 8) & byte.MaxValue);
 
-        public byte Blue => (byte)((ulong)value & byte.MaxValue);
+        public byte Blue => (byte)((ulong)_value & byte.MaxValue);
 
-        private readonly long value;
+        private readonly long _value;
 
         public Color(byte r, byte g, byte b)
         {
-            value = (long)(uint)(r << 16 | g << 8 | b | 255 << 24) & uint.MaxValue;
+            _value = (long)(uint)(r << 16 | g << 8 | b | 255 << 24) & uint.MaxValue;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return base.Equals(obj);
+        }
+
+        public bool Equals(Color other)
+        {
+            return _value == other._value;
+        }
+
+        public override int GetHashCode()
+        {
+            return _value.GetHashCode();
         }
 
         public override string ToString()

@@ -244,7 +244,7 @@ namespace BongoCat.DJMAX.Setting.Input
                     return InputKeys.Slash;
 
                 case Key.Back:
-                    return InputKeys.BackSlash;
+                    return InputKeys.BackSpace;
 
                 case Key.Oem1:
                     return InputKeys.Semicolon;
@@ -265,7 +265,7 @@ namespace BongoCat.DJMAX.Setting.Input
                     return InputKeys.Space;
 
                 case Key.Oem5:
-                    return InputKeys.BackSpace;
+                    return InputKeys.BackSlash;
 
                 case Key.Tab:
                     return InputKeys.Tab;

@@ -1,6 +1,8 @@
 ﻿using BongoCat.DJMAX.Models;
 using System;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Threading;
@@ -42,21 +44,19 @@ namespace BongoCat.DJMAX
 
         private KeyState[] _keyBindings;
         private KeyMotion[] _keyMotions;
-        private Thread _keyThread;
-        private int _keyDelay;
+        private Thread _renderLoopThread;
+        private int _renderLoopDelay;
+        private CancellationTokenSource _renderLoopToken;
 
-        private ConfigurationInternal _configuration;
+        private readonly ConfigurationInternal _configuration;
 
         // render
-        private int[] _defaultHandState;
-
-        private int[] _handState;
-        private int[] _handStateBuffer;
+        private readonly int[] _defaultHandState;
+        private readonly int[] _handState;
+        private readonly int[] _handStateBuffer;
 
         private bool[] _effectState;
         private bool[] _effectStateBuffer;
-
-        private readonly CrossContextDelegate _invalidateDelegate;
 
         public MainWindow(ConfigurationInternal configuration)
         {
@@ -68,34 +68,45 @@ namespace BongoCat.DJMAX
                 ControlStyles.OptimizedDoubleBuffer,
                 true);
 
-            ApplyConfiguration(configuration);
-
-            _invalidateDelegate = Invalidate;
-
-            Run();
-        }
-
-        private void ApplyConfiguration(ConfigurationInternal config)
-        {
-            _configuration = config;
-            _skin = config.SkinInternal;
-
-            var bgr = config.Background!.Value;
-            BackColor = Color.FromArgb(bgr.Red, bgr.Green, bgr.Blue);
-
-            SetupKeyBindings(config);
-            SetupResources();
-            SetupMotions();
-            AdjustClientSize();
-
             _defaultHandState = new[] { 0, 4, 8, 12 };
             _handState = (int[])_defaultHandState.Clone();
             _handStateBuffer = (int[])_defaultHandState.Clone();
 
+            _configuration = configuration;
+
+            InvalidateConfiguration();
+        }
+
+        private void InvalidateConfiguration()
+        {
+            StopRenderLoop();
+
+            try
+            {
+                var skinDir = Path.Combine(BCEnvironment.SkinDirectory, _configuration.Skin);
+                _skin = Skin.FromDirectory(_configuration.Buttons, skinDir);
+            }
+            catch (Exception e)
+            {
+                MessageBox.Show(e.Message, "BongoCat DJMAX", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Close();
+                return;
+            }
+
+            var bgr = _configuration.Background!.Value;
+            BackColor = Color.FromArgb(bgr.Red, bgr.Green, bgr.Blue);
+
+            SetupKeyBindings();
+            SetupResources();
+            SetupMotions();
+            AdjustClientSize();
+
             _effectState = new bool[_skin.Effects.Length];
             _effectStateBuffer = new bool[_skin.Effects.Length];
 
-            _keyDelay = 1000 / config.RefreshRate!.Value;
+            _renderLoopDelay = 1000 / _configuration.RefreshRate!.Value;
+
+            StartRenderLoop();
         }
 
         private void AdjustClientSize()
@@ -112,14 +123,14 @@ namespace BongoCat.DJMAX
             Top += (size.Height - ClientSize.Height) / 2;
         }
 
-        private void SetupKeyBindings(Configuration config)
+        private void SetupKeyBindings()
         {
-            IInputSetting input = config.Buttons switch
+            IInputSetting input = _configuration.Buttons switch
             {
-                Buttons._4 => config.Input4,
-                Buttons._5 => config.Input5,
-                Buttons._6 => config.Input6,
-                Buttons._8 => config.Input8,
+                Buttons._4 => _configuration.Input4,
+                Buttons._5 => _configuration.Input5,
+                Buttons._6 => _configuration.Input6,
+                Buttons._8 => _configuration.Input8,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
@@ -222,23 +233,46 @@ namespace BongoCat.DJMAX
             }
         }
 
-        private void Run()
+        private void ResetRenderState()
         {
-            _keyThread = new Thread(KeyWorker)
+            Array.Copy(_defaultHandState, _handState, _handState.Length);
+            Array.Copy(_defaultHandState, _handStateBuffer, _handStateBuffer.Length);
+            Array.Clear(_effectState, 0, _effectState.Length);
+            Array.Clear(_effectStateBuffer, 0, _effectStateBuffer.Length);
+        }
+
+        private void StartRenderLoop()
+        {
+            if (_renderLoopThread != null)
+                throw new InvalidOperationException();
+
+            _renderLoopThread = new Thread(RenderLoop)
             {
                 IsBackground = true
             };
 
-            _keyThread.Start();
+            _renderLoopToken = new CancellationTokenSource();
+            _renderLoopThread.Start(_renderLoopToken.Token);
         }
 
-        private void KeyWorker()
+        private void StopRenderLoop()
         {
+            _renderLoopToken?.Cancel();
+
+            _renderLoopThread?.Join();
+            _renderLoopThread = null;
+
+            _renderLoopToken = new CancellationTokenSource();
+        }
+
+        private void RenderLoop(object cancellationToken)
+        {
+            var token = (CancellationToken)cancellationToken;
             var keyCount = _keyBindings.Length;
 
-            while (true)
+            while (!token.IsCancellationRequested)
             {
-                Thread.Sleep(_keyDelay);
+                Thread.Sleep(_renderLoopDelay);
 
                 var dirty = false;
                 var pressedAnyKey = false;
@@ -289,14 +323,7 @@ namespace BongoCat.DJMAX
                 Array.Copy(_handStateBuffer, _handState, 4);
                 Array.Copy(_effectStateBuffer, _effectState, _effectState.Length);
 
-                try
-                {
-                    Invoke(_invalidateDelegate);
-                }
-                catch (ObjectDisposedException)
-                {
-                    break;
-                }
+                Invalidate();
 
                 // Clear buffer
                 Array.Copy(_defaultHandState, _handStateBuffer, 4);
@@ -336,13 +363,22 @@ namespace BongoCat.DJMAX
 
         private void ShowSetting()
         {
-            var window = new SettingWindow(_configuration);
+            StopRenderLoop();
 
+            var window = new SettingWindow(_configuration);
             ElementHost.EnableModelessKeyboardInterop(window);
 
             if (window.ShowDialog() ?? false)
             {
-                // Save
+                InvalidateConfiguration();
+                _configuration.Save();
+
+                ResetRenderState();
+                Invalidate();
+            }
+            else
+            {
+                StartRenderLoop();
             }
         }
     }

@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Documents;
@@ -27,10 +29,16 @@ namespace BongoCat.DJMAX.Setting
         private const string actionLeftSideTrack = "L SIDE TRACK";
         private const string actionRightSideTrack = "R SIDE TRACK";
 
-        private readonly SettingWindowModel _model;
+        private static readonly int[] _defaultRefreshRates = { 30, 60, 144, 240 };
+        private static readonly Color[] _defaultBackgrounds = { new Color(255, 255, 255), new Color(0, 255, 0), new Color(0, 0, 255) };
+
+        private SettingWindowModel _model;
+
+        private ITransaction _displaySettingTransaction;
+        private ITransaction _inputSettingTransaction;
+        private readonly ITransaction _settingTransaction;
 
         private InputKeysModel[][] _inputModels;
-        private ITransaction _configurationTransaction;
 
         private IInputProvider _inputProvider;
         private InputKeysModel _targetInputModel;
@@ -41,23 +49,68 @@ namespace BongoCat.DJMAX.Setting
         {
             InitializeComponent();
             InitializeConfiguration(configuration);
+            InitializeDataContext(configuration);
+
+            _settingTransaction = new TransactionGroup(_displaySettingTransaction, _inputSettingTransaction);
+
+            radioBtn4.Checked += (s, e) => SetInputSettingTab(Buttons._4);
+            radioBtn5.Checked += (s, e) => SetInputSettingTab(Buttons._5);
+            radioBtn6.Checked += (s, e) => SetInputSettingTab(Buttons._6);
+            radioBtn8.Checked += (s, e) => SetInputSettingTab(Buttons._8);
+
+            SetInputSettingTab(Buttons._4);
+        }
+
+        private void InitializeDataContext(Configuration configuration)
+        {
+            Buttons[] buttons = Enum.GetValues(typeof(Buttons))
+                .OfType<Buttons>()
+                .ToArray();
+
+            string[] skins = Directory.GetDirectories(BCEnvironment.SkinDirectory)
+                .Select(Path.GetFileName)
+                .ToArray();
+
+            var backgrounds = new List<Color>(_defaultBackgrounds);
+            var refreshRates = new List<int>(_defaultRefreshRates);
+
+            var buttonsTransaction = new PropertyTransaction<Buttons>(configuration, nameof(Configuration.Buttons));
+            var skinTransaction = new PropertyTransaction<string>(configuration, nameof(Configuration.Skin));
+            var backgroundTransaction = new PropertyTransaction<Color?>(configuration, nameof(Configuration.Background));
+            var refreshRateTransaction = new PropertyTransaction<int?>(configuration, nameof(Configuration.RefreshRate));
+
+            if (configuration.Background.HasValue && !backgrounds.Contains(configuration.Background.Value))
+            {
+                backgrounds.Add(configuration.Background.Value);
+            }
+
+            if (configuration.RefreshRate.HasValue && !refreshRates.Contains(configuration.RefreshRate.Value))
+            {
+                refreshRates.Add(configuration.RefreshRate.Value);
+            }
+
+            _displaySettingTransaction = new TransactionGroup(
+                buttonsTransaction,
+                skinTransaction,
+                backgroundTransaction,
+                refreshRateTransaction);
 
             _model = new SettingWindowModel
             {
-                SelectedButtons = Buttons._4,
                 Keys = _inputModels[0],
                 CancelCommand = new ActionCommand(OnCancelCommandExecuted),
-                SaveCommand = new ActionCommand(OnSaveCommandExecuted)
+                SaveCommand = new ActionCommand(OnSaveCommandExecuted),
+                ButtonItems = buttons,
+                Buttons = buttonsTransaction,
+                SkinItems = skins,
+                Skin = skinTransaction,
+                BackgroundItems = backgrounds,
+                Background = backgroundTransaction,
+                RefreshRateItems = refreshRates,
+                RefreshRate = refreshRateTransaction
             };
 
-            _model.PropertyChanged += ModelOnPropertyChanged;
             DataContext = _model;
-
-            radioBtn4.IsChecked = true;
-            radioBtn4.Checked += (s, e) => _model.SelectedButtons = Buttons._4;
-            radioBtn5.Checked += (s, e) => _model.SelectedButtons = Buttons._5;
-            radioBtn6.Checked += (s, e) => _model.SelectedButtons = Buttons._6;
-            radioBtn8.Checked += (s, e) => _model.SelectedButtons = Buttons._8;
         }
 
         private void InitializeConfiguration(Configuration configuration)
@@ -101,7 +154,7 @@ namespace BongoCat.DJMAX.Setting
                 new PropertyTransaction<InputKeys>(configuration.Input8, nameof(InputSetting8.RightSideTrack))
             };
 
-            _configurationTransaction = new TransactionGroup(transactions);
+            _inputSettingTransaction = new TransactionGroup(transactions);
 
             _inputModels = new[]
             {
@@ -171,7 +224,7 @@ namespace BongoCat.DJMAX.Setting
         {
             StopInputRecording();
 
-            if (!_skipSaveHint && _configurationTransaction.IsChanged)
+            if (!_skipSaveHint && _settingTransaction.IsChanged)
             {
                 if (MessageBox.Show("변경된 사항을 저장하시겠습니까?", Title, MessageBoxButton.OKCancel, MessageBoxImage.Information) == MessageBoxResult.OK)
                 {
@@ -182,27 +235,28 @@ namespace BongoCat.DJMAX.Setting
             base.OnClosing(e);
         }
 
-        private void ModelOnPropertyChanged(object sender, PropertyChangedEventArgs e)
+        private void SetInputSettingTab(Buttons buttons)
         {
-            if (e.PropertyName != nameof(SettingWindowModel.SelectedButtons))
-                return;
-
-            switch (_model.SelectedButtons)
+            switch (buttons)
             {
                 case Buttons._4:
                     _model.Keys = _inputModels[0];
+                    radioBtn4.IsChecked = true;
                     break;
 
                 case Buttons._5:
                     _model.Keys = _inputModels[1];
+                    radioBtn5.IsChecked = true;
                     break;
 
                 case Buttons._6:
                     _model.Keys = _inputModels[2];
+                    radioBtn6.IsChecked = true;
                     break;
 
                 case Buttons._8:
                     _model.Keys = _inputModels[3];
+                    radioBtn8.IsChecked = true;
                     break;
             }
         }
@@ -241,7 +295,7 @@ namespace BongoCat.DJMAX.Setting
 
         private void Save()
         {
-            _configurationTransaction.Commit();
+            _settingTransaction.Commit();
             _skipSaveHint = true;
 
             if (ComponentDispatcher.IsThreadModal)
