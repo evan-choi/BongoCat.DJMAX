@@ -21,10 +21,9 @@
         }
 
         #region Windows Form 디자이너에서 생성한 코드
-
         /// <summary>
-        /// 디자이너 지원에 필요한 메서드입니다. 
-        /// 이 메서드의 내용을 코드 편집기로 수정하지 마세요.
+        /// Required method for Designer support - do not modify
+        /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent()
         {
@@ -44,7 +43,6 @@
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "BongoCat DJMAX";
             this.ResumeLayout(false);
-
         }
 
         #endregion

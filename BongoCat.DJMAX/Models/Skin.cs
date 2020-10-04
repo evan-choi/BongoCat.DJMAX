@@ -2,6 +2,7 @@
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using BongoCat.DJMAX.Common;
 
 namespace BongoCat.DJMAX.Models
 {

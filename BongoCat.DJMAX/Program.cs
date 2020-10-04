@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Windows.Forms;
+using BongoCat.DJMAX.Common;
+using BongoCat.DJMAX.Common.Input;
 using BongoCat.DJMAX.Models;
-using BongoCat.DJMAX.Serialization;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace BongoCat.DJMAX
 {
@@ -20,33 +17,18 @@ namespace BongoCat.DJMAX
         [STAThread]
         private static void Main()
         {
-            Configuration configuration;
+            ConfigurationInternal configuration = null;
             var defaultConfiguration = CreateDefaultConfiguration();
-
-            var jsonSerializerSettings = new JsonSerializerSettings
-            {
-                Converters =
-                {
-                    new HexColorConverter(),
-                    new ButtonsStringConverter(),
-                    new StringEnumConverter()
-                }
-            };
 
             WriteDefaultSkins();
 
             try
             {
-                if (!File.Exists(ConfigFile))
-                    throw new FileNotFoundException();
+                configuration = ConfigurationInternal.FromFile(ConfigFile);
 
-                var json = File.ReadAllText(ConfigFile, Encoding.UTF8);
-                configuration = JsonConvert.DeserializeObject<Configuration>(json, jsonSerializerSettings) ??
-                                throw new JsonException();
-
-                if (string.IsNullOrEmpty(configuration.SkinName) || "default".Equals(configuration.SkinName, StringComparison.OrdinalIgnoreCase))
+                if (string.IsNullOrEmpty(configuration.Skin) || "default".Equals(configuration.Skin, StringComparison.OrdinalIgnoreCase))
                 {
-                    configuration.SkinName = "Lisrim";
+                    configuration.Skin = "Lisrim";
                 }
 
                 BlendConfiguration(configuration, defaultConfiguration);
@@ -54,15 +36,15 @@ namespace BongoCat.DJMAX
             }
             catch (FileNotFoundException)
             {
-                configuration = defaultConfiguration;
-
-                var json = JsonConvert.SerializeObject(configuration, Formatting.Indented, jsonSerializerSettings);
-                File.WriteAllText(ConfigFile, json, Encoding.UTF8);
+                // Skip
             }
-            catch (JsonException)
+            catch (JsonException e)
             {
-                MessageBox.Show("Invalid config format.", "BongoCat DJMAX", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
+                if (!e.Message.StartsWith("Required property 'version' not found"))
+                {
+                    MessageBox.Show("Invalid config format.", "BongoCat DJMAX", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
             }
             catch (Exception e)
             {
@@ -70,10 +52,13 @@ namespace BongoCat.DJMAX
                 return;
             }
 
+            configuration ??= defaultConfiguration;
+            configuration.Save(ConfigFile);
+
             try
             {
-                var skinDir = Path.Combine(_skinDirectory, configuration.SkinName);
-                configuration.Skin = Skin.FromDirectory(configuration.Buttons, skinDir);
+                var skinDir = Path.Combine(_skinDirectory, configuration.Skin);
+                configuration.SkinInternal = Skin.FromDirectory(configuration.Buttons, skinDir);
             }
             catch (Exception e)
             {
@@ -93,9 +78,9 @@ namespace BongoCat.DJMAX
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            var keyNames = new[] {"4k", "5k", "6k", "8k"};
+            var keyNames = new[] { "4k", "5k", "6k", "8k" };
             var resKeys = new[] { "4k", "6k", "6k", "8k" };
-            var resFxCounts = new[] {6, 8, 8, 10};
+            var resFxCounts = new[] { 6, 8, 8, 10 };
 
             for (var i = 0; i < 4; i++)
             {
@@ -122,58 +107,58 @@ namespace BongoCat.DJMAX
             }
         }
 
-        private static Configuration CreateDefaultConfiguration()
+        private static ConfigurationInternal CreateDefaultConfiguration()
         {
-            return new Configuration
+            return new ConfigurationInternal
             {
                 RefreshRate = 60,
-                Background = Color.White,
+                Background = new Color(255, 255, 255),
                 Buttons = Buttons._6,
-                KeySet4 = new KeySet4
+                Skin = "Lisrim",
+                Input4 = new InputSetting4
                 {
-                    LeftSide = Keys.LShiftKey,
-                    Key1 = Keys.A,
-                    Key2 = Keys.S,
-                    Key3 = Keys.Oem1,
-                    Key4 = Keys.Oem7,
-                    RightSide = Keys.RShiftKey
+                    Track1 = InputKeys.A,
+                    Track2 = InputKeys.S,
+                    Track3 = InputKeys.Semicolon,
+                    Track4 = InputKeys.Quote,
+                    LeftSideTrack = InputKeys.LShift,
+                    RightSideTrack = InputKeys.RShift
                 },
-                KeySet5 = new KeySet5
+                Input5 = new InputSetting5
                 {
-                    LeftSide = Keys.LShiftKey,
-                    Key1 = Keys.A,
-                    Key2 = Keys.S,
-                    Key3First = Keys.D,
-                    Key3Second = Keys.L,
-                    Key4 = Keys.Oem1,
-                    Key5 = Keys.Oem7,
-                    RightSide = Keys.RShiftKey
+                    Track1 = InputKeys.A,
+                    Track2 = InputKeys.S,
+                    Track3 = InputKeys.D,
+                    Track4 = InputKeys.L,
+                    Track5 = InputKeys.Semicolon,
+                    Track6 = InputKeys.Quote,
+                    LeftSideTrack = InputKeys.LShift,
+                    RightSideTrack = InputKeys.RShift
                 },
-                KeySet6 = new KeySet6
+                Input6 = new InputSetting6
                 {
-                    LeftSide = Keys.LShiftKey,
-                    Key1 = Keys.A,
-                    Key2 = Keys.S,
-                    Key3 = Keys.D,
-                    Key4 = Keys.L,
-                    Key5 = Keys.Oem1,
-                    Key6 = Keys.Oem7,
-                    RightSide = Keys.RShiftKey
+                    Track1 = InputKeys.A,
+                    Track2 = InputKeys.S,
+                    Track3 = InputKeys.D,
+                    Track4 = InputKeys.L,
+                    Track5 = InputKeys.Semicolon,
+                    Track6 = InputKeys.Quote,
+                    LeftSideTrack = InputKeys.LShift,
+                    RightSideTrack = InputKeys.RShift
                 },
-                KeySet8 = new KeySet8
+                Input8 = new InputSetting8
                 {
-                    LeftSide = Keys.CapsLock,
-                    Key1 = Keys.Q,
-                    Key2 = Keys.W,
-                    Key3 = Keys.E,
-                    LeftRed = Keys.Space,
-                    RightRed = Keys.NumPad0,
-                    Key4 = Keys.NumPad7,
-                    Key5 = Keys.NumPad8,
-                    Key6 = Keys.NumPad9,
-                    RightSide = Keys.Add
-                },
-                SkinName = "Lisrim"
+                    Track1 = InputKeys.A,
+                    Track2 = InputKeys.S,
+                    Track3 = InputKeys.D,
+                    Track4 = InputKeys.L,
+                    Track5 = InputKeys.Semicolon,
+                    Track6 = InputKeys.Quote,
+                    TrackLeft = InputKeys.C,
+                    TrackRight = InputKeys.Comma,
+                    LeftSideTrack = InputKeys.LShift,
+                    RightSideTrack = InputKeys.RShift
+                }
             };
         }
 
@@ -181,29 +166,16 @@ namespace BongoCat.DJMAX
         {
             target.RefreshRate ??= source.RefreshRate;
             target.Background ??= source.Background;
-            target.KeySet4 ??= source.KeySet4;
-            target.KeySet5 ??= source.KeySet5;
-            target.KeySet6 ??= source.KeySet6;
-            target.KeySet8 ??= source.KeySet8;
+            target.Input4 ??= source.Input4;
+            target.Input5 ??= source.Input5;
+            target.Input6 ??= source.Input6;
+            target.Input8 ??= source.Input8;
         }
 
         private static void ValidateConfiguration(Configuration config)
         {
             if (config.RefreshRate < 1 || config.RefreshRate > 1000)
                 throw new Exception("RefreshRate must be between 1 and 1000.");
-
-            var keySets = new KeySetBase[]
-            {
-                config.KeySet4,
-                config.KeySet5,
-                config.KeySet6,
-                config.KeySet8
-            };
-
-            if (keySets.Any(s => s.GetKeys()?.ToArray() == null))
-            {
-                throw new Exception("Unknown error in key set.");
-            }
         }
     }
 }

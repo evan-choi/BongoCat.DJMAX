@@ -5,7 +5,18 @@ VisualStudioVersion = 16.0.30320.27
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BongoCat.DJMAX", "BongoCat.DJMAX\BongoCat.DJMAX.csproj", "{5D92A3E4-4051-4B6C-BF49-264866F813B8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BongoCat.DJMAX.Common", "BongoCat.DJMAX.Common\BongoCat.DJMAX.Common.csproj", "{2D912C2C-D2D2-4D30-86D2-7E0BF31567F0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BongoCat.DJMAX.Setting", "BongoCat.DJMAX.Setting\BongoCat.DJMAX.Setting.csproj", "{80CB67AC-93E6-4DFE-8C6D-C48B540814D9}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "BongoCat.DJMAX.Interop", "BongoCat.DJMAX.Interop\BongoCat.DJMAX.Interop.shproj", "{62F2E30D-E162-41B0-B583-E8C411C2639E}"
+EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		BongoCat.DJMAX.Interop\BongoCat.DJMAX.Interop.projitems*{5d92a3e4-4051-4b6c-bf49-264866f813b8}*SharedItemsImports = 4
+		BongoCat.DJMAX.Interop\BongoCat.DJMAX.Interop.projitems*{62f2e30d-e162-41b0-b583-e8c411c2639e}*SharedItemsImports = 13
+		BongoCat.DJMAX.Interop\BongoCat.DJMAX.Interop.projitems*{80cb67ac-93e6-4dfe-8c6d-c48b540814d9}*SharedItemsImports = 4
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
@@ -15,6 +26,14 @@ Global
 		{5D92A3E4-4051-4B6C-BF49-264866F813B8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5D92A3E4-4051-4B6C-BF49-264866F813B8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5D92A3E4-4051-4B6C-BF49-264866F813B8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2D912C2C-D2D2-4D30-86D2-7E0BF31567F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2D912C2C-D2D2-4D30-86D2-7E0BF31567F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2D912C2C-D2D2-4D30-86D2-7E0BF31567F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2D912C2C-D2D2-4D30-86D2-7E0BF31567F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80CB67AC-93E6-4DFE-8C6D-C48B540814D9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80CB67AC-93E6-4DFE-8C6D-C48B540814D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80CB67AC-93E6-4DFE-8C6D-C48B540814D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80CB67AC-93E6-4DFE-8C6D-C48B540814D9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

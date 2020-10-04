@@ -5,14 +5,17 @@ using System.Linq;
 using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Windows.Forms;
-using KeySetBase = BongoCat.DJMAX.Models.KeySetBase;
+using System.Windows.Forms.Integration;
+using BongoCat.DJMAX.Common;
+using BongoCat.DJMAX.Common.Input;
+using BongoCat.DJMAX.Setting;
+using Color = System.Drawing.Color;
 
 namespace BongoCat.DJMAX
 {
-    public sealed partial class MainWindow : Form
+    internal sealed partial class MainWindow : Form
     {
         #region Constants
-
         private const int LeftLeftUp = 0;
         private const int LeftLeft0 = 1;
         private const int LeftLeft1 = 2;
@@ -32,7 +35,6 @@ namespace BongoCat.DJMAX
         private const int RightRight0 = 13;
         private const int RightRight1 = 14;
         private const int RightRight2 = 15;
-
         #endregion
 
         private Skin _skin;
@@ -43,7 +45,7 @@ namespace BongoCat.DJMAX
         private Thread _keyThread;
         private int _keyDelay;
 
-        private Buttons _buttons;
+        private ConfigurationInternal _configuration;
 
         // render
         private int[] _defaultHandState;
@@ -56,7 +58,7 @@ namespace BongoCat.DJMAX
 
         private readonly CrossContextDelegate _invalidateDelegate;
 
-        public MainWindow(Configuration configuration)
+        public MainWindow(ConfigurationInternal configuration)
         {
             InitializeComponent();
 
@@ -73,21 +75,22 @@ namespace BongoCat.DJMAX
             Run();
         }
 
-        private void ApplyConfiguration(Configuration config)
+        private void ApplyConfiguration(ConfigurationInternal config)
         {
-            _buttons = config.Buttons;
-            _skin = config.Skin;
-            
-            BackColor = config.Background!.Value;
+            _configuration = config;
+            _skin = config.SkinInternal;
+
+            var bgr = config.Background!.Value;
+            BackColor = Color.FromArgb(bgr.Red, bgr.Green, bgr.Blue);
 
             SetupKeyBindings(config);
             SetupResources();
             SetupMotions();
             AdjustClientSize();
 
-            _defaultHandState = new[] {0, 4, 8, 12};
-            _handState = (int[]) _defaultHandState.Clone();
-            _handStateBuffer = (int[]) _defaultHandState.Clone();
+            _defaultHandState = new[] { 0, 4, 8, 12 };
+            _handState = (int[])_defaultHandState.Clone();
+            _handStateBuffer = (int[])_defaultHandState.Clone();
 
             _effectState = new bool[_skin.Effects.Length];
             _effectStateBuffer = new bool[_skin.Effects.Length];
@@ -101,8 +104,8 @@ namespace BongoCat.DJMAX
             using var g = CreateGraphics();
 
             ClientSize = new Size(
-                (int) (_skin.Background.Width * g.DpiX / _skin.Background.HorizontalResolution),
-                (int) (_skin.Background.Height * g.DpiY / _skin.Background.VerticalResolution)
+                (int)(_skin.Background.Width * g.DpiX / _skin.Background.HorizontalResolution),
+                (int)(_skin.Background.Height * g.DpiY / _skin.Background.VerticalResolution)
             );
 
             Left += (size.Width - ClientSize.Width) / 2;
@@ -111,16 +114,16 @@ namespace BongoCat.DJMAX
 
         private void SetupKeyBindings(Configuration config)
         {
-            KeySetBase keySet = _buttons switch
+            IInputSetting input = config.Buttons switch
             {
-                Buttons._4 => config.KeySet4,
-                Buttons._5 => config.KeySet5,
-                Buttons._6 => config.KeySet6,
-                Buttons._8 => config.KeySet8,
+                Buttons._4 => config.Input4,
+                Buttons._5 => config.Input5,
+                Buttons._6 => config.Input6,
+                Buttons._8 => config.Input8,
                 _ => throw new ArgumentOutOfRangeException()
             };
 
-            _keyBindings = keySet.GetKeys()
+            _keyBindings = input.GetKeys()
                 .Reverse()
                 .Select(k => new KeyState(k))
                 .ToArray();
@@ -153,62 +156,65 @@ namespace BongoCat.DJMAX
 
         private void SetupMotions()
         {
-            switch (_buttons)
+            switch (_configuration.Buttons)
             {
                 case Buttons._4:
                     _keyMotions = new[]
                     {
-                        new KeyMotion(new[] {1, 2}, LeftLeft2),
-                        new KeyMotion(new[] {3, 4}, RightLeft2),
+                        new KeyMotion(new[] { 1, 2 }, LeftLeft2),
+                        new KeyMotion(new[] { 3, 4 }, RightLeft2),
 
-                        new KeyMotion(new[] {0}, LeftLeft0),
-                        new KeyMotion(new[] {1}, LeftLeft2),
-                        new KeyMotion(new[] {2}, LeftRight2),
-                        new KeyMotion(new[] {3}, RightLeft0),
-                        new KeyMotion(new[] {4}, RightLeft2),
-                        new KeyMotion(new[] {5}, RightRight2),
+                        new KeyMotion(new[] { 0 }, LeftLeft0),
+                        new KeyMotion(new[] { 1 }, LeftLeft2),
+                        new KeyMotion(new[] { 2 }, LeftRight2),
+                        new KeyMotion(new[] { 3 }, RightLeft0),
+                        new KeyMotion(new[] { 4 }, RightLeft2),
+                        new KeyMotion(new[] { 5 }, RightRight2),
                     };
+
                     break;
 
                 case Buttons._5:
                 case Buttons._6:
                     _keyMotions = new[]
                     {
-                        new KeyMotion(new[] {0, 1}, LeftLeft1),
-                        new KeyMotion(new[] {2, 3}, LeftRight1),
-                        new KeyMotion(new[] {4, 5}, RightLeft1),
-                        new KeyMotion(new[] {6, 7}, RightRight1),
+                        new KeyMotion(new[] { 0, 1 }, LeftLeft1),
+                        new KeyMotion(new[] { 2, 3 }, LeftRight1),
+                        new KeyMotion(new[] { 4, 5 }, RightLeft1),
+                        new KeyMotion(new[] { 6, 7 }, RightRight1),
 
-                        new KeyMotion(new[] {0}, LeftLeft0),
-                        new KeyMotion(new[] {1}, LeftLeft2),
-                        new KeyMotion(new[] {2}, LeftRight0),
-                        new KeyMotion(new[] {3}, LeftRight2),
-                        new KeyMotion(new[] {4}, RightLeft0),
-                        new KeyMotion(new[] {5}, RightLeft2),
-                        new KeyMotion(new[] {6}, RightRight0),
-                        new KeyMotion(new[] {7}, RightRight2)
+                        new KeyMotion(new[] { 0 }, LeftLeft0),
+                        new KeyMotion(new[] { 1 }, LeftLeft2),
+                        new KeyMotion(new[] { 2 }, LeftRight0),
+                        new KeyMotion(new[] { 3 }, LeftRight2),
+                        new KeyMotion(new[] { 4 }, RightLeft0),
+                        new KeyMotion(new[] { 5 }, RightLeft2),
+                        new KeyMotion(new[] { 6 }, RightRight0),
+                        new KeyMotion(new[] { 7 }, RightRight2)
                     };
+
                     break;
 
                 case Buttons._8:
                     _keyMotions = new[]
                     {
-                        new KeyMotion(new[] {0, 1}, LeftLeft1),
-                        new KeyMotion(new[] {3, 4}, LeftRight1),
-                        new KeyMotion(new[] {5, 6}, RightLeft1),
-                        new KeyMotion(new[] {7, 8}, RightRight1),
+                        new KeyMotion(new[] { 0, 1 }, LeftLeft1),
+                        new KeyMotion(new[] { 3, 4 }, LeftRight1),
+                        new KeyMotion(new[] { 5, 6 }, RightLeft1),
+                        new KeyMotion(new[] { 7, 8 }, RightRight1),
 
-                        new KeyMotion(new[] {0}, LeftLeft0),
-                        new KeyMotion(new[] {1}, LeftLeft1),
-                        new KeyMotion(new[] {2}, LeftLeft2),
-                        new KeyMotion(new[] {3}, LeftRight0),
-                        new KeyMotion(new[] {4}, LeftRight2),
-                        new KeyMotion(new[] {5}, RightLeft0),
-                        new KeyMotion(new[] {6}, RightLeft2),
-                        new KeyMotion(new[] {7}, RightRight0),
-                        new KeyMotion(new[] {8}, RightRight1),
-                        new KeyMotion(new[] {9}, RightRight2)
+                        new KeyMotion(new[] { 0 }, LeftLeft0),
+                        new KeyMotion(new[] { 1 }, LeftLeft1),
+                        new KeyMotion(new[] { 2 }, LeftLeft2),
+                        new KeyMotion(new[] { 3 }, LeftRight0),
+                        new KeyMotion(new[] { 4 }, LeftRight2),
+                        new KeyMotion(new[] { 5 }, RightLeft0),
+                        new KeyMotion(new[] { 6 }, RightLeft2),
+                        new KeyMotion(new[] { 7 }, RightRight0),
+                        new KeyMotion(new[] { 8 }, RightRight1),
+                        new KeyMotion(new[] { 9 }, RightRight2)
                     };
+
                     break;
 
                 default:
@@ -315,6 +321,29 @@ namespace BongoCat.DJMAX
             g.DrawImage(_sprites[_handState[1]].Bitmap, Point.Empty);
             g.DrawImage(_sprites[_handState[2]].Bitmap, Point.Empty);
             g.DrawImage(_sprites[_handState[3]].Bitmap, Point.Empty);
+        }
+
+        protected override void OnKeyDown(KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.F10)
+            {
+                ShowSetting();
+                e.Handled = true;
+            }
+
+            base.OnKeyDown(e);
+        }
+
+        private void ShowSetting()
+        {
+            var window = new SettingWindow(_configuration);
+
+            ElementHost.EnableModelessKeyboardInterop(window);
+
+            if (window.ShowDialog() ?? false)
+            {
+                // Save
+            }
         }
     }
 }

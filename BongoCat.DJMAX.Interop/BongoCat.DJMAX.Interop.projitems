@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>62f2e30d-e162-41b0-b583-e8c411c2639e</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>BongoCat.DJMAX.Interop</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\Kernel32\GetCurrentThreadId.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\Libraries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\UnhookWindowsHookEx.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\GetAsyncKeyState.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\CallNextHookEx.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\HookProc.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\HookType.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\SetWindowsHookEx.cs" />
+  </ItemGroup>
+</Project>

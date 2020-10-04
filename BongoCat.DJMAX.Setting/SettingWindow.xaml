@@ -1,0 +1,232 @@
+﻿<Window
+    x:Class="BongoCat.DJMAX.Setting.SettingWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:cvt="clr-namespace:BongoCat.DJMAX.Setting.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="clr-namespace:BongoCat.DJMAX.Setting"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:md="clr-namespace:BongoCat.DJMAX.Setting.Models"
+    Title="BongoCat DJMAX Setting"
+    Width="560"
+    Height="Auto"
+    d:DataContext="{md:SettingWindowModel}"
+    Background="#FF1F1F1F"
+    Foreground="#8C8C8C"
+    ResizeMode="NoResize"
+    SizeToContent="WidthAndHeight"
+    WindowStartupLocation="CenterScreen"
+    mc:Ignorable="d">
+    <Window.Resources>
+        <cvt:InputKeysConverter x:Key="InputKeysConverter" />
+        <Style TargetType="{x:Type FrameworkElement}">
+            <Setter Property="FocusVisualStyle" Value="{x:Null}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid x:Name="root">
+        <Grid Margin="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <Grid HorizontalAlignment="Center">
+                <Grid.Resources>
+                    <Style BasedOn="{StaticResource {x:Type FrameworkElement}}" TargetType="{x:Type RadioButton}">
+                        <Setter Property="FontSize" Value="14" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                        <Setter Property="Foreground" Value="#91908D" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type RadioButton}">
+                                    <Border x:Name="borderBackground" Background="#45413E">
+                                        <Border
+                                            x:Name="borderFrame"
+                                            Padding="24,12"
+                                            BorderBrush="#FFB400">
+                                            <ContentPresenter RecognizesAccessKey="True" />
+                                        </Border>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsChecked" Value="true">
+                                            <Setter Property="Foreground" Value="Black" />
+                                            <Setter TargetName="borderBackground" Property="Background" Value="#C89726" />
+                                            <Setter TargetName="borderFrame" Property="Padding" Value="19,7" />
+                                            <Setter TargetName="borderFrame" Property="BorderThickness" Value="5" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <RadioButton
+                    x:Name="radioBtn4"
+                    Grid.Column="0"
+                    Content="4B TUNES" />
+
+                <RadioButton
+                    x:Name="radioBtn5"
+                    Grid.Column="2"
+                    Content="5B TUNES" />
+
+                <RadioButton
+                    x:Name="radioBtn6"
+                    Grid.Column="4"
+                    Content="6B TUNES" />
+
+                <RadioButton
+                    x:Name="radioBtn8"
+                    Grid.Column="6"
+                    Content="8B TUNES" />
+            </Grid>
+
+            <Grid
+                Grid.Row="1"
+                Margin="0,12,0,0"
+                VerticalAlignment="Top">
+                <Grid.Resources>
+                    <Style TargetType="{x:Type TextBlock}">
+                        <Setter Property="Padding" Value="6" />
+                        <Setter Property="TextAlignment" Value="Center" />
+                        <Setter Property="FontSize" Value="12" />
+                        <Setter Property="FontWeight" Value="Bold" />
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="10" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" Text="Action" />
+                <TextBlock Grid.Column="2" Text="Keyboard" />
+                <TextBlock Grid.Column="4" Text="Controller" />
+            </Grid>
+
+            <ItemsControl Grid.Row="2" ItemsSource="{Binding Keys}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate DataType="{x:Type md:InputKeysModel}">
+                        <Grid Margin="0,0,0,5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition />
+                                <ColumnDefinition Width="10" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.Resources>
+                                <Style TargetType="{x:Type TextBlock}">
+                                    <Setter Property="Padding" Value="6" />
+                                    <Setter Property="TextAlignment" Value="Center" />
+                                    <Setter Property="FontSize" Value="12" />
+                                    <Setter Property="FontWeight" Value="Bold" />
+                                </Style>
+                                <Style BasedOn="{StaticResource {x:Type FrameworkElement}}" TargetType="{x:Type Button}">
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Button}">
+                                                <TextBlock
+                                                    Padding="6"
+                                                    Background="#685649"
+                                                    FontSize="12"
+                                                    FontWeight="Bold"
+                                                    Foreground="#b5ada7"
+                                                    Text="{TemplateBinding Content}"
+                                                    TextAlignment="Center" />
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </Grid.Resources>
+
+                            <TextBlock
+                                Grid.Column="0"
+                                Background="#45413e"
+                                Foreground="#96938f"
+                                Text="{Binding Action}" />
+
+                            <Button
+                                Grid.Column="2"
+                                Command="{Binding KeyboardCommand}"
+                                CommandParameter="{Binding}"
+                                Content="{Binding Keyboard.Value, Converter={StaticResource InputKeysConverter}}" />
+
+                            <Button
+                                x:Name="btnController"
+                                Grid.Column="4"
+                                Command="{Binding ControllerCommand}"
+                                CommandParameter="{Binding}"
+                                Content="{Binding Controller.Value, Converter={StaticResource InputKeysConverter}}" />
+                        </Grid>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Grid Grid.Row="3" Margin="0,11,0,0">
+                <Grid.Resources>
+                    <Style BasedOn="{StaticResource {x:Type FrameworkElement}}" TargetType="{x:Type Button}">
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <ControlTemplate.Resources>
+                                        <LinearGradientBrush x:Key="MouseOverBrush" StartPoint="0,0.5" EndPoint="1,0.5">
+                                            <GradientStop Offset="0" Color="#FED00B" />
+                                            <GradientStop Offset="1" Color="#FF8088" />
+                                        </LinearGradientBrush>
+                                    </ControlTemplate.Resources>
+                                    <TextBlock
+                                        x:Name="presenter"
+                                        Padding="24,12"
+                                        Background="#151515"
+                                        FontSize="14"
+                                        FontWeight="Bold"
+                                        Foreground="{StaticResource MouseOverBrush}"
+                                        Text="{TemplateBinding Content}"
+                                        TextAlignment="Center" />
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="presenter" Property="Background" Value="{StaticResource MouseOverBrush}" />
+                                            <Setter TargetName="presenter" Property="Foreground" Value="Black" />
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </Grid.Resources>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="16" />
+                    <ColumnDefinition />
+                </Grid.ColumnDefinitions>
+
+                <Button
+                    Grid.Column="0"
+                    Command="{Binding CancelCommand}"
+                    Content="CANCEL" />
+                <Button
+                    Grid.Column="2"
+                    Command="{Binding SaveCommand}"
+                    Content="SAVE" />
+            </Grid>
+        </Grid>
+
+        <ContentPresenter Content="{Binding Overlay}" />
+    </Grid>
+</Window>
