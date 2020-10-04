@@ -47,6 +47,16 @@ namespace BongoCat.DJMAX.Setting.Models
             }
         }
 
+        public PropertyTransaction<bool> TopMost
+        {
+            get => _topMost;
+            set
+            {
+                _topMost = value;
+                OnPropertyChanged();
+            }
+        }
+
         public IList<Buttons> ButtonItems
         {
             get => _buttonItems;
@@ -83,6 +93,16 @@ namespace BongoCat.DJMAX.Setting.Models
             set
             {
                 _refreshRateItems = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public IList<bool> TopMostItems
+        {
+            get => _topMostItems;
+            set
+            {
+                _topMostItems = value;
                 OnPropertyChanged();
             }
         }
@@ -131,11 +151,13 @@ namespace BongoCat.DJMAX.Setting.Models
         private IList<Color> _backgroundItems;
         private IList<string> _skinItems;
         private IList<int> _refreshRateItems;
+        private IList<bool> _topMostItems;
 
         private PropertyTransaction<Buttons> _buttons;
         private PropertyTransaction<Color?> _background;
         private PropertyTransaction<string> _skin;
         private PropertyTransaction<int?> _refreshRate;
+        private PropertyTransaction<bool> _topMost;
 
         private InputKeysModel[] _keys;
         private object _overlay;

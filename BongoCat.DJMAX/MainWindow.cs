@@ -95,6 +95,7 @@ namespace BongoCat.DJMAX
 
             var bgr = _configuration.Background!.Value;
             BackColor = Color.FromArgb(bgr.Red, bgr.Green, bgr.Blue);
+            TopMost = _configuration.TopMost;
 
             SetupKeyBindings();
             SetupResources();
@@ -365,7 +366,11 @@ namespace BongoCat.DJMAX
         {
             StopRenderLoop();
 
-            var window = new SettingWindow(_configuration);
+            var window = new SettingWindow(_configuration)
+            {
+                Topmost = TopMost
+            };
+
             ElementHost.EnableModelessKeyboardInterop(window);
 
             if (window.ShowDialog() ?? false)

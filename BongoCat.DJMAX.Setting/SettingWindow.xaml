@@ -186,6 +186,20 @@
                 </ComboBox>
             </UniformGrid>
 
+            <UniformGrid Margin="{StaticResource Property.Margin}" Columns="2">
+                <TextBlock Style="{StaticResource Property.Header}" Text="항상 위에서 보기" />
+                <ComboBox
+                    ItemsSource="{Binding TopMostItems}"
+                    SelectedValue="{Binding TopMost.Value}"
+                    Style="{StaticResource Property.Item.ComboBox}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <TextBlock Text="{Binding Converter={cvt:BooleanConverter}}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+            </UniformGrid>
+
             <!--  INPUT SETTING  -->
 
             <TextBlock Style="{StaticResource Header}" Text="INPUT SETTING" />

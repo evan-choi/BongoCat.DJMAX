@@ -31,6 +31,7 @@ namespace BongoCat.DJMAX.Setting
 
         private static readonly int[] _defaultRefreshRates = { 30, 60, 144, 240 };
         private static readonly Color[] _defaultBackgrounds = { new Color(255, 255, 255), new Color(0, 255, 0), new Color(0, 0, 255) };
+        private static readonly bool[] _defaultBooleans = { false, true };
 
         private SettingWindowModel _model;
 
@@ -78,6 +79,7 @@ namespace BongoCat.DJMAX.Setting
             var skinTransaction = new PropertyTransaction<string>(configuration, nameof(Configuration.Skin));
             var backgroundTransaction = new PropertyTransaction<Color?>(configuration, nameof(Configuration.Background));
             var refreshRateTransaction = new PropertyTransaction<int?>(configuration, nameof(Configuration.RefreshRate));
+            var topMostTransaction = new PropertyTransaction<bool>(configuration, nameof(Configuration.TopMost));
 
             if (configuration.Background.HasValue && !backgrounds.Contains(configuration.Background.Value))
             {
@@ -93,7 +95,8 @@ namespace BongoCat.DJMAX.Setting
                 buttonsTransaction,
                 skinTransaction,
                 backgroundTransaction,
-                refreshRateTransaction);
+                refreshRateTransaction,
+                topMostTransaction);
 
             _model = new SettingWindowModel
             {
@@ -107,7 +110,9 @@ namespace BongoCat.DJMAX.Setting
                 BackgroundItems = backgrounds,
                 Background = backgroundTransaction,
                 RefreshRateItems = refreshRates,
-                RefreshRate = refreshRateTransaction
+                RefreshRate = refreshRateTransaction,
+                TopMostItems = _defaultBooleans,
+                TopMost = topMostTransaction
             };
 
             DataContext = _model;

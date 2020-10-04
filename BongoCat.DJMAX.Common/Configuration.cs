@@ -28,6 +28,9 @@ namespace BongoCat.DJMAX.Common
         [JsonConverter(typeof(ButtonsConverter))]
         public Buttons Buttons { get; set; }
 
+        [JsonProperty("topMost")]
+        public bool TopMost { get; set; }
+
         [JsonProperty("4B")]
         public InputSetting4 Input4 { get; set; }
 

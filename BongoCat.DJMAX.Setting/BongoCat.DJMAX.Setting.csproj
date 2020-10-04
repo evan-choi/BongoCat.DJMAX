@@ -59,6 +59,7 @@
     <Compile Include="Controls\InputOverlay.xaml.cs">
       <DependentUpon>InputOverlay.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Converters\BooleanConverter.cs" />
     <Compile Include="Converters\ButtonsNameConverter.cs" />
     <Compile Include="Converters\FriendlyColorNameConverter.cs" />
     <Compile Include="Converters\InputKeysConverter.cs" />
