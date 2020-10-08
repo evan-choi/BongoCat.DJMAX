@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using System.Windows.Forms;
 using System.Windows.Forms.Integration;
@@ -38,6 +37,11 @@ namespace BongoCat.DJMAX
         private const int RightRight0 = 13;
         private const int RightRight1 = 14;
         private const int RightRight2 = 15;
+
+        private const int HotKey4B = 0;
+        private const int HotKey5B = 1;
+        private const int HotKey6B = 2;
+        private const int HotKey8B = 3;
         #endregion
 
         private Skin _skin;
@@ -76,6 +80,16 @@ namespace BongoCat.DJMAX
             _configuration = configuration;
 
             InvalidateConfiguration();
+        }
+
+        protected override void OnLoad(EventArgs e)
+        {
+            base.OnLoad(e);
+
+            Interop.User32.RegisterHotKey(Handle, HotKey4B, Interop.User32.KeyModifiers.Alt, (int)Keys.F5);
+            Interop.User32.RegisterHotKey(Handle, HotKey5B, Interop.User32.KeyModifiers.Alt, (int)Keys.F6);
+            Interop.User32.RegisterHotKey(Handle, HotKey6B, Interop.User32.KeyModifiers.Alt, (int)Keys.F7);
+            Interop.User32.RegisterHotKey(Handle, HotKey8B, Interop.User32.KeyModifiers.Alt, (int)Keys.F8);
         }
 
         private void InvalidateConfiguration()
@@ -289,6 +303,7 @@ namespace BongoCat.DJMAX
                     dirty |= effectState != pressed;
 
                     effectState = pressed;
+
                     if (pressed)
                         l.Add(i.ToString());
                 }
@@ -391,6 +406,27 @@ namespace BongoCat.DJMAX
             {
                 StartRenderLoop();
             }
+        }
+
+        protected override void WndProc(ref Message m)
+        {
+            if (m.Msg == 0x0312)
+            {
+                var buttons = (Buttons)m.WParam.ToInt32();
+
+                if (_configuration.Buttons != buttons)
+                {
+                    StopRenderLoop();
+
+                    _configuration.Buttons = buttons;
+
+                    InvalidateConfiguration();
+                    ResetRenderState();
+                    Invalidate();
+                }
+            }
+
+            base.WndProc(ref m);
         }
     }
 }

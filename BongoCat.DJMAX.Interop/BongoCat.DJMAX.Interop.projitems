@@ -11,6 +11,11 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Interop\Kernel32\GetCurrentThreadId.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interop\Libraries.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\GetKeyboardLayout.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\KeyModifiers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\MapVirtualKeyEx.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\MapVirtualKeyMapTypes.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\RegisterHotKey.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\UnhookWindowsHookEx.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\GetAsyncKeyState.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Interop\User32\CallNextHookEx.cs" />

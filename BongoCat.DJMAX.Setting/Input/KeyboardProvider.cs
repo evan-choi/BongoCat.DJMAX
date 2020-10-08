@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Windows.Input;
 using BongoCat.DJMAX.Common;
 
@@ -14,32 +13,45 @@ namespace BongoCat.DJMAX.Setting.Input
 
         private Interop.User32.HookProc _proc;
         private IntPtr _hook;
+        private readonly IntPtr _keyboardLayout;
 
         public KeyboardProvider()
         {
+            var threadId = Interop.Kernel32.GetCurrentThreadId();
+
             _proc = HookProc;
 
             _hook = Interop.User32.SetWindowsHookEx(
                 Interop.User32.HookType.WH_KEYBOARD,
                 _proc,
                 IntPtr.Zero,
-                Interop.Kernel32.GetCurrentThreadId());
+                threadId);
+
+            _keyboardLayout = Interop.User32.GetKeyboardLayout(threadId);
         }
 
-        private IntPtr HookProc(int code, IntPtr wparam, IntPtr lparam)
+        private IntPtr HookProc(int code, IntPtr wParam, IntPtr lParam)
         {
             if (code >= 0 && code != HC_NOREMOVE)
             {
-                var flags = (uint)lparam;
+                var flags = (uint)lParam;
 
                 if ((flags & MASK_KEYDOWN) > 0)
                 {
-                    var key = KeyInterop.KeyFromVirtualKey(wparam.ToInt32());
+                    var key = KeyInterop.KeyFromVirtualKey(wParam.ToInt32());
+
+                    if (key == Key.LeftShift || key == Key.RightShift)
+                    {
+                        var scanCode = BitConverter.GetBytes(lParam.ToInt32())[2];
+                        var vkEx = Interop.User32.MapVirtualKeyEx(scanCode, Interop.User32.MapVirtualKeyMapTypes.MAPVK_VSC_TO_VK_EX, _keyboardLayout);
+                        key = vkEx == 160 ? Key.LeftShift : Key.RightShift;
+                    }
+
                     KeyDown?.Invoke(this, ConvertToInputKeys(key));
                 }
             }
 
-            return Interop.User32.CallNextHookEx(_hook, code, wparam, lparam);
+            return Interop.User32.CallNextHookEx(_hook, code, wParam, lParam);
         }
 
         public void Dispose()

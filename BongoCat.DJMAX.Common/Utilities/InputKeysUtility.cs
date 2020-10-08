@@ -353,8 +353,6 @@ namespace BongoCat.DJMAX.Common.Utilities
                 default:
                     throw new ArgumentOutOfRangeException(nameof(keys), keys, null);
             }
-
-            return 0;
         }
     }
 }
