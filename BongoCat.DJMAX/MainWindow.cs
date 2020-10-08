@@ -1,5 +1,6 @@
 ﻿using BongoCat.DJMAX.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -173,14 +174,13 @@ namespace BongoCat.DJMAX
                 case Buttons._4:
                     _keyMotions = new[]
                     {
-                        new KeyMotion(new[] { 1, 2 }, LeftLeft2),
-                        new KeyMotion(new[] { 3, 4 }, RightLeft2),
+                        new KeyMotion(new[] { 0, 1 }, LeftLeft2),
 
                         new KeyMotion(new[] { 0 }, LeftLeft0),
                         new KeyMotion(new[] { 1 }, LeftLeft2),
                         new KeyMotion(new[] { 2 }, LeftRight2),
                         new KeyMotion(new[] { 3 }, RightLeft0),
-                        new KeyMotion(new[] { 4 }, RightLeft2),
+                        new KeyMotion(new[] { 4 }, RightRight0),
                         new KeyMotion(new[] { 5 }, RightRight2),
                     };
 
@@ -211,6 +211,7 @@ namespace BongoCat.DJMAX
                     _keyMotions = new[]
                     {
                         new KeyMotion(new[] { 0, 1 }, LeftLeft1),
+                        new KeyMotion(new[] { 1, 2 }, LeftLeft2),
                         new KeyMotion(new[] { 3, 4 }, LeftRight1),
                         new KeyMotion(new[] { 5, 6 }, RightLeft1),
                         new KeyMotion(new[] { 7, 8 }, RightRight1),
@@ -277,6 +278,7 @@ namespace BongoCat.DJMAX
 
                 var dirty = false;
                 var pressedAnyKey = false;
+                var l = new List<string>();
 
                 for (var i = 0; i < keyCount; i++)
                 {
@@ -287,6 +289,8 @@ namespace BongoCat.DJMAX
                     dirty |= effectState != pressed;
 
                     effectState = pressed;
+                    if (pressed)
+                        l.Add(i.ToString());
                 }
 
                 if (!dirty)
@@ -294,6 +298,8 @@ namespace BongoCat.DJMAX
 
                 if (!pressedAnyKey)
                     goto swap;
+
+                Debug.Print(string.Join(", ", l));
 
                 var hitMap = new bool[4];
 
