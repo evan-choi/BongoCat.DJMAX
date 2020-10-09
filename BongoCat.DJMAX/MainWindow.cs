@@ -98,6 +98,12 @@ namespace BongoCat.DJMAX
 
             try
             {
+                if (_skin != null)
+                {
+                    _skin.Dispose();
+                    GC.Collect();
+                }
+
                 var skinDir = Path.Combine(BCEnvironment.SkinDirectory, _configuration.Skin);
                 _skin = Skin.FromDirectory(_configuration.Buttons, skinDir);
             }
@@ -410,7 +416,7 @@ namespace BongoCat.DJMAX
 
         protected override void WndProc(ref Message m)
         {
-            if (m.Msg == 0x0312)
+            if (m.Msg == 0x0312 && _renderLoopThread != null)
             {
                 var buttons = (Buttons)m.WParam.ToInt32();
 

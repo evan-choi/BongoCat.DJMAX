@@ -6,7 +6,7 @@ using BongoCat.DJMAX.Common;
 
 namespace BongoCat.DJMAX.Models
 {
-    public class Skin
+    public class Skin : IDisposable
     {
         public Bitmap Background { get; }
 
@@ -69,6 +69,19 @@ namespace BongoCat.DJMAX.Models
         private static Bitmap GetBitmap(string file)
         {
             return !File.Exists(file) ? null : new Bitmap(file);
+        }
+
+        public void Dispose()
+        {
+            Background?.Dispose();
+
+            if (Effects != null)
+            {
+                foreach (var effect in Effects)
+                {
+                    effect.Dispose();
+                }
+            }
         }
     }
 }
