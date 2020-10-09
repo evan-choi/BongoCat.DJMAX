@@ -298,7 +298,6 @@ namespace BongoCat.DJMAX
 
                 var dirty = false;
                 var pressedAnyKey = false;
-                var l = new List<string>();
 
                 for (var i = 0; i < keyCount; i++)
                 {
@@ -309,9 +308,6 @@ namespace BongoCat.DJMAX
                     dirty |= effectState != pressed;
 
                     effectState = pressed;
-
-                    if (pressed)
-                        l.Add(i.ToString());
                 }
 
                 if (!dirty)
@@ -319,8 +315,6 @@ namespace BongoCat.DJMAX
 
                 if (!pressedAnyKey)
                     goto swap;
-
-                Debug.Print(string.Join(", ", l));
 
                 var hitMap = new bool[4];
 
